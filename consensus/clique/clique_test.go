@@ -45,17 +45,29 @@ func TestReimportMirroredState(t *testing.T) {
 		signer = new(types.HomesteadSigner)
 	)
 	genspec := &core.Genesis{
-		ExtraData: make([][]byte, 3*(extraVanity+common.AddressLength+extraSeal)),
+		ExtraData: [][]byte{
+			make([]byte, extraVanity+common.AddressLength+extraSeal),
+			make([]byte, extraVanity+common.AddressLength+extraSeal),
+			make([]byte, extraVanity+common.AddressLength+extraSeal),
+		},
 		Alloc: map[common.Address]core.GenesisAccount{
 			addr: {Balance: big.NewInt(10000000000000000)},
 		},
-		BaseFee: []*big.Int{big.NewInt(params.InitialBaseFee), big.NewInt(params.InitialBaseFee), big.NewInt(params.InitialBaseFee)},
+		BaseFee:  []*big.Int{big.NewInt(params.InitialBaseFee), big.NewInt(params.InitialBaseFee), big.NewInt(params.InitialBaseFee)},
+		GasLimit: make([]uint64, 3),
+		Number: []*big.Int{
+			big.NewInt(0),
+		},
+		Coinbase: make([]common.Address, 3),
+		Difficulty: []*big.Int{
+			big.NewInt(0),
+		},
 	}
 	copy(genspec.ExtraData[types.QuaiNetworkContext][extraVanity:], addr[:])
 	genesis := genspec.MustCommit(db)
 
 	// Generate a batch of blocks, each properly signed
-	chain, _ := core.NewBlockChain(db, nil, params.AllCliqueProtocolChanges, engine, vm.Config{}, nil, nil)
+	chain, _ := core.NewBlockChain(db, nil, params.AllCliqueProtocolChanges, "", []string{""}, engine, vm.Config{}, nil, nil)
 	defer chain.Stop()
 
 	blocks, _ := core.GenerateChain(params.AllCliqueProtocolChanges, genesis, engine, db, 3, func(i int, block *core.BlockGen) {
@@ -66,7 +78,17 @@ func TestReimportMirroredState(t *testing.T) {
 		// We want to simulate an empty middle block, having the same state as the
 		// first one. The last is needs a state change again to force a reorg.
 		if i != 1 {
-			tx, err := types.SignTx(types.NewTransaction(block.TxNonce(addr), common.Address{0x00}, new(big.Int), params.TxGas, block.BaseFee(), nil), signer, key)
+			// Manually creating the transaction to have more control over the V value
+			newTx := types.NewTx(&types.LegacyTx{
+				Nonce:    block.TxNonce(addr),
+				To:       &common.Address{0x00},
+				Value:    new(big.Int),
+				Gas:      params.TxGas,
+				GasPrice: block.BaseFee(),
+				Data:     nil,
+				V:        new(big.Int).SetUint64(2709),
+			})
+			tx, err := types.SignTx(newTx, signer, key)
 			if err != nil {
 				panic(err)
 			}
@@ -89,7 +111,7 @@ func TestReimportMirroredState(t *testing.T) {
 	db = rawdb.NewMemoryDatabase()
 	genspec.MustCommit(db)
 
-	chain, _ = core.NewBlockChain(db, nil, params.AllCliqueProtocolChanges, engine, vm.Config{}, nil, nil)
+	chain, _ = core.NewBlockChain(db, nil, params.AllCliqueProtocolChanges, "", []string{""}, engine, vm.Config{}, nil, nil)
 	defer chain.Stop()
 
 	if _, err := chain.InsertChain(blocks[:2]); err != nil {
@@ -102,7 +124,7 @@ func TestReimportMirroredState(t *testing.T) {
 	// Simulate a crash by creating a new chain on top of the database, without
 	// flushing the dirty states out. Insert the last block, triggering a sidechain
 	// reimport.
-	chain, _ = core.NewBlockChain(db, nil, params.AllCliqueProtocolChanges, engine, vm.Config{}, nil, nil)
+	chain, _ = core.NewBlockChain(db, nil, params.AllCliqueProtocolChanges, "", []string{""}, engine, vm.Config{}, nil, nil)
 	defer chain.Stop()
 
 	if _, err := chain.InsertChain(blocks[2:]); err != nil {

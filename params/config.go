@@ -673,7 +673,7 @@ var (
 		CatalystBlock:       big.NewInt(0),
 		Ethash:              new(EthashConfig),
 		Clique:              nil,
-		GenesisHashes:       nil,
+		GenesisHashes:       make([]common.Hash, 3),
 		FullerMapContext:    big.NewInt(0)}
 
 	// AllCliqueProtocolChanges contains every protocol change (EIPs) introduced
@@ -698,7 +698,7 @@ var (
 		CatalystBlock:       big.NewInt(0),
 		Ethash:              nil,
 		Clique:              &CliqueConfig{Period: 0, Epoch: 30000},
-		GenesisHashes:       nil,
+		GenesisHashes:       make([]common.Hash, 3),
 		FullerMapContext:    big.NewInt(0)}
 
 	TestChainConfig = &ChainConfig{big.NewInt(1), 0, []byte{0, 0}, big.NewInt(0), big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, new(EthashConfig), nil, nil, big.NewInt(0)}
