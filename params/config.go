@@ -28,9 +28,9 @@ import (
 
 // Genesis hashes to enforce below configs on.
 var (
-	MainnetPrimeGenesisHash  = common.HexToHash("0xbe3eea365e94195cb1efb40dd9cdcd26deb0924f0f6600a723d678f8ca5ef7de")
-	MainnetRegionGenesisHash = common.HexToHash("0xbe3eea365e94195cb1efb40dd9cdcd26deb0924f0f6600a723d678f8ca5ef7de")
-	MainnetZoneGenesisHash   = common.HexToHash("0xbe3eea365e94195cb1efb40dd9cdcd26deb0924f0f6600a723d678f8ca5ef7de")
+	MainnetPrimeGenesisHash  = common.HexToHash("0x43e469c92ad01de58df3ef841c5dd2cd4319bace34dfbb0b585eda02db8fbefc")
+	MainnetRegionGenesisHash = common.HexToHash("0x43e469c92ad01de58df3ef841c5dd2cd4319bace34dfbb0b585eda02db8fbefc")
+	MainnetZoneGenesisHash   = common.HexToHash("0x43e469c92ad01de58df3ef841c5dd2cd4319bace34dfbb0b585eda02db8fbefc")
 	RopstenPrimeGenesisHash  = common.HexToHash("0x9c0d89a5294e4635a49f6d4c9f9e1a361cb76bfffa71be2ff01a64f3c5dd0dcc")
 	RopstenRegionGenesisHash = common.HexToHash("0x9c0d89a5294e4635a49f6d4c9f9e1a361cb76bfffa71be2ff01a64f3c5dd0dcc")
 	RopstenZoneGenesisHash   = common.HexToHash("0x9c0d89a5294e4635a49f6d4c9f9e1a361cb76bfffa71be2ff01a64f3c5dd0dcc")
@@ -673,7 +673,7 @@ var (
 		CatalystBlock:       big.NewInt(0),
 		Ethash:              new(EthashConfig),
 		Clique:              nil,
-		GenesisHashes:       nil,
+		GenesisHashes:       make([]common.Hash, 3),
 		FullerMapContext:    big.NewInt(0)}
 
 	// AllCliqueProtocolChanges contains every protocol change (EIPs) introduced
@@ -698,7 +698,7 @@ var (
 		CatalystBlock:       big.NewInt(0),
 		Ethash:              nil,
 		Clique:              &CliqueConfig{Period: 0, Epoch: 30000},
-		GenesisHashes:       nil,
+		GenesisHashes:       make([]common.Hash, 3),
 		FullerMapContext:    big.NewInt(0)}
 
 	TestChainConfig = &ChainConfig{big.NewInt(1), 0, []byte{0, 0}, big.NewInt(0), big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, new(EthashConfig), nil, nil, big.NewInt(0)}
